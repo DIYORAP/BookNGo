@@ -14,10 +14,9 @@ function Header() {
             <span className="text-red-700">Go</span>
           </h1>
         </Link>
-
         <form
           action=""
-          className="bg-slate-100 p-2 rounded-lg flex items-center"
+          className="bg-slate-100 p-1 rounded-lg flex items-center"
         >
           <FaSearch className="w-4" />
           <input
@@ -29,6 +28,7 @@ function Header() {
             <FaSearch className="text-white rounded-full cursor-pointer m-2" />
           </div>
         </form>
+
         <ul className="flex gap-4">
           <Link to="/">
             <li className=" sm:inlines  hover:underline">Find my tickets</li>
@@ -38,6 +38,7 @@ function Header() {
               Create Event
             </li>
           </Link>
+          <Link to="sign in">Sign In</Link>
           <Link to="/profile">Sign Up</Link>
         </ul>
       </div>
