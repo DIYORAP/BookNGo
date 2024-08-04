@@ -17,6 +17,10 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  imageUrls: {
+    type: Array,
+    required: true,
+  },
   category: {
     type: String,
     required: true,
@@ -24,7 +28,7 @@ const eventSchema = new mongoose.Schema({
   organizer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    //required: true,
   },
   tickets: [
     {
