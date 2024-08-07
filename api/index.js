@@ -24,6 +24,6 @@ mongoose
     console.error("Error connecting to MongoDB:", err);
   });
 
-app.listen(3001, () => {
+app.listen(3000, () => {
   console.log("Server running at port 3000");
 });
