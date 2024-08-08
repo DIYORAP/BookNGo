@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState,useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
-
+import {app} from '../firebase.js'
+import {getStorage,ref,uploadBytesResumable,getDownloadURL} from 'firebase/storage'
 const steps = [
-  { id: 'Step 1', name: 'Event Information', fields: ['firstName', 'lastName', 'email'] },
+  { id: 'Step 1', name: 'Event Information', fields: ['selectedCategory', 'numberOfPeople'] },
   { id: 'Step 2', name: 'Create your event', fields: ['eventTitle', 'eventDate', 'startTime', 'endTime', 'location', 'ticketPrice', 'capacity'] },
   { id: 'Step 3', name: 'Complete' }
 ];
@@ -15,28 +16,92 @@ const categories = [
 ];
 
 export default function Form() {
+  const [uploading, setUploading] = useState(false);
   const [previousStep, setPreviousStep] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const delta = currentStep - previousStep;
- // const [selectedCategory, setSelectedCategory] = useState('');
   const [showMore, setShowMore] = useState(false);
   const [formData, setFormData] = useState({});
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    reset,
-    trigger,
+  const [imageUploadError,setImageUploadError]=useState(false);
+  const [files,setFiles]=useState([]);
+  const { 
+    register, 
+    handleSubmit, 
+    watch, 
+    reset, 
+    trigger, 
     setValue, 
-   
-    formState: { errors }
+    formState: { errors } 
   } = useForm({
     defaultValues: {
-        selectedCategory: '',
-      },
+      selectedCategory: '',
+      numberOfPeople: '',
+      imageUrls:[],
+    }
   });
+  console.log(formData);
+console.log(files)
+  const handleImageSubmit=async()=>{
+    if(files.length>0 &&files.length<7){
+      setUploading(true);
+      setImageUploadError(false);
 
+      const promises=[];
+      for(let i=0;i<files.length;i++)
+      {
+        promises.push(storeImages(files[i]));
+      }
+      const urls = await Promise.all(promises).catch((err)=>{setImageUploadError('image upload failed ')});
+      console.log('All files uploaded:', urls);
+
+      setValue('imageUrls', [...watch('imageUrls'), ...urls]);
+      setImageUploadError(false);
+      setUploading(false);
+
+    } 
+    else{
+      setImageUploadError("you can only 6 images per events");
+    }
+  };
+  const storeImages = async (file) => {
+    return new Promise((resolve, reject) => {
+      const storage = getStorage(app);
+      const fileName = new Date().getTime() + '-' + file.name; // Corrected file name construction
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+  
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          // Handle progress
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        },
+        (error) => {
+          // Handle unsuccessful uploads
+          console.error('Upload failed:', error);
+          reject(error);
+        },
+        () => {
+          // Handle successful uploads on complete
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            console.log('File available at', downloadURL);
+            resolve(downloadURL);
+          });
+        }
+      );
+    });
+  };
+  const handleRemoveImage = (index) => {
+    // Get the current image URLs from the form state
+    const currentImageUrls = watch('imageUrls');
+  
+    // Remove the image at the specified index
+    const updatedImageUrls = currentImageUrls.filter((_, i) => i !== index);
+  
+    // Update the form state with the new image URLs
+    setValue('imageUrls', updatedImageUrls);
+  };
   const selectedCategory = watch('selectedCategory');
 
   const handleButtonClick = (category) => {
@@ -46,24 +111,29 @@ export default function Form() {
   const processForm = (data) => {
     setFormData(prevData => ({ ...prevData, ...data }));
     console.log('Final Data:', data);
-   
   };
 
   const next = async () => {
     const fields = steps[currentStep].fields;
-    const output = await trigger(fields, { shouldFocus: true });
 
-    if (!output) return;
-
-    if (currentStep < steps.length - 1) {
-      if (currentStep === steps.length - 2) {
-        await handleSubmit(processForm)();
-      } else {
-        setFormData(prevData => ({ ...prevData, ...watch() }));
-        setPreviousStep(currentStep);
-        setCurrentStep(step => step + 1);
-      }
+    if (currentStep === 0) {
+      // Validate current step fields
+      const isValid = await trigger(['selectedCategory', 'numberOfPeople']);
+      if (!isValid) return;
+    } else if (currentStep === 1) {
+      // Validate step 1 fields
+      const isValid = await trigger(fields);
+      if (!isValid) return;
+    } else {
+      // Process form data on last step
+      await handleSubmit(processForm)();
+      return;
     }
+
+    // Move to the next step if validation passes
+    setFormData(prevData => ({ ...prevData, ...watch() }));
+    setPreviousStep(currentStep);
+    setCurrentStep(step => step + 1);
   };
 
   const prev = () => {
@@ -72,8 +142,6 @@ export default function Form() {
       setCurrentStep(step => step - 1);
     }
   };
-
-  
 
   const handleShowMore = () => {
     setShowMore(!showMore);
@@ -132,16 +200,15 @@ export default function Form() {
             </p>
             <div className="p-6">
               <div className="flex flex-wrap gap-4">
-              {categories.slice(0, showMore ? undefined : 7).map((category) => (
-
-              <button
-            key={category}
-            type="button"
-            onClick={() => handleButtonClick(category)}
-            className={`px-4 py-2 rounded-lg font-semibold text-white ${selectedCategory === category ? 'bg-blue-500' : 'bg-gray-500'} hover:bg-blue-600 transition-colors`}
-          >
-            {category}
-          </button>
+                {categories.slice(0, showMore ? undefined : 7).map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => handleButtonClick(category)}
+                    className={`px-4 py-2 rounded-lg font-semibold text-white ${selectedCategory === category ? 'bg-blue-500' : 'bg-gray-500'} hover:bg-blue-600 transition-colors`}
+                  >
+                    {category}
+                  </button>
                 ))}
               </div>
               <button
@@ -277,6 +344,56 @@ export default function Form() {
                     />
                     {errors.capacity && <p className="mt-1 text-sm text-red-600">Capacity is required</p>}
                   </div>
+
+
+            
+                  <p className='font-semibold'>
+            Images:
+            <span className='font-normal text-gray-600 ml-2'>
+              The first image will be the cover (max 6)
+            </span>
+          </p>
+          <div className='flex gap-4'>
+            <input
+              onChange={(e) => setFiles(e.target.files)}
+              className='p-3 border border-gray-300 rounded w-full'
+              type='file'
+              id='images'
+              accept='image/*'
+              multiple
+            />
+            <button
+              type='button'
+           disabled={uploading}
+            onClick={handleImageSubmit}
+              className='p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80'
+            >  
+              {uploading ? 'Uploading...' : 'Upload'}
+            </button>
+          </div>
+          <p className="text-red-700 text-sm">
+            {imageUploadError && imageUploadError}
+          </p>
+          {watch('imageUrls').length > 0 &&
+  watch('imageUrls').map((url, index) => (
+    <div
+      key={index}
+      className="flex justify-between p-3 border items-center"
+    >
+      <img
+        src={url}
+        alt={`Image ${index + 1}`}
+        className="w-20 h-20 object-contain rounded-lg"
+      />
+      <button
+        type="button"
+        onClick={() => handleRemoveImage(index)}
+        className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
+      >
+        Delete
+      </button>
+    </div>
+  ))} 
                 </form>
               </section>
             </div>
@@ -312,8 +429,8 @@ export default function Form() {
                 <p><strong>Capacity:</strong> {formData.capacity}</p>
               </div>
             </div>
-          </motion.div>
-        )}
+      </motion.div>
+       )}
 
         <div className='flex justify-between mt-12'>
           <button
