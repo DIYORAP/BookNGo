@@ -8,6 +8,7 @@ import SwiperCore from "swiper";
 import { Navigation } from "swiper/modules";
 import "swiper/css/bundle";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
+import MapComponent from '../components/MapComponent.jsx';
 const steps = [
   { id: 'Step 1', name: 'Event Information', fields: ['selectedCategory', 'numberOfPeople'] },
   { id: 'Step 2', name: 'Create your event', fields: ['eventTitle', 'eventDate', 'startTime', 'endTime', 'location', 'ticketPrice', 'capacity'] },
@@ -462,7 +463,12 @@ export default function Form() {
                 <p><strong>Date:</strong> {formData.eventDate}</p>
                 <p><strong>Start Time:</strong> {formData.startTime}</p>
                 <p><strong>End Time:</strong> {formData.endTime}</p>
+
                 <p><strong>Location:</strong> {formData.location}</p>
+                <div class="col-span-8 offset-3 mb-3">
+                  <h3>Where you'll be</h3>
+                  <MapComponent location={formData.location} />
+                </div>
                 <p><strong>Ticket Price:</strong> ${formData.ticketPrice}</p>
                 <p><strong>Capacity:</strong> {formData.capacity}</p>
               </div>
