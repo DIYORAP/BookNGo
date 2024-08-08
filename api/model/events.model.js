@@ -13,6 +13,14 @@ const eventSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  starttime: {
+    type: Date,
+    required: true,
+  },
+  endtime: {
+    type: Date,
+    required: true,
+  },
   location: {
     type: String,
     required: true,
@@ -24,6 +32,14 @@ const eventSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
+  },
+  ticketprice:{
+    type:Number,
+    required:true,
+  },
+  capacity:{
+    type:Number,
+    required:true,
   },
   organizer: {
     type: mongoose.Schema.Types.ObjectId,

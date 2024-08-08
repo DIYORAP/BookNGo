@@ -7,16 +7,16 @@ import ButtonSelection from "./pages/Createevent";
 
 function App() {
   return (
-   <BrowserRouter>
-   
-    <Header/>
-    <Routes>
-    <Route path='/sign-up' element={<SignUp/>} />
-    <Route path="/sign-in" element={<SignIn/>} />
-    <Route path="/in" element={<ButtonSelection/>} />
+    <BrowserRouter>
 
-     </Routes>
-   </BrowserRouter>
+      <Header />
+      <Routes>
+        <Route path='/sign-up' element={<SignUp />} />
+        <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/in" element={<ButtonSelection />} />
+
+      </Routes>
+    </BrowserRouter>
 
   );
 }

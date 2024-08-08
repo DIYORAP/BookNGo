@@ -1,8 +1,13 @@
-import { useState,useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
-import {app} from '../firebase.js'
-import {getStorage,ref,uploadBytesResumable,getDownloadURL} from 'firebase/storage'
+import { app } from '../firebase.js'
+import { Swiper, SwiperSlide } from "swiper/react";
+import mapboxgl from 'mapbox-gl';
+import SwiperCore from "swiper";
+import { Navigation } from "swiper/modules";
+import "swiper/css/bundle";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 const steps = [
   { id: 'Step 1', name: 'Event Information', fields: ['selectedCategory', 'numberOfPeople'] },
   { id: 'Step 2', name: 'Create your event', fields: ['eventTitle', 'eventDate', 'startTime', 'endTime', 'location', 'ticketPrice', 'capacity'] },
@@ -14,54 +19,58 @@ const categories = [
   'Parties', 'Fashion & Beauty', 'Business & Professional', 'Non-Profit', 'Religion & Spirituality', 'Family & Education',
   'Health & Wellness', 'Events Company, Agency, or Promoter', 'Sports & Fitness', 'Other'
 ];
+mapboxgl.accessToken = "pk.eyJ1IjoicGFydGhpazEwMDAiLCJhIjoiY2x3dGdiN3VoMDM4eDJsczdnMzF6ZDEwMiJ9._0J8bPx46q5D5zgnIpd4DQ";
 
 export default function Form() {
+  SwiperCore.use([Navigation]);
   const [uploading, setUploading] = useState(false);
   const [previousStep, setPreviousStep] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const delta = currentStep - previousStep;
   const [showMore, setShowMore] = useState(false);
   const [formData, setFormData] = useState({});
-  const [imageUploadError,setImageUploadError]=useState(false);
-  const [files,setFiles]=useState([]);
-  const { 
-    register, 
-    handleSubmit, 
-    watch, 
-    reset, 
-    trigger, 
-    setValue, 
-    formState: { errors } 
+  const [imageUploadError, setImageUploadError] = useState(false);
+  const [files, setFiles] = useState([]);
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    trigger,
+    setValue,
+    formState: { errors }
   } = useForm({
     defaultValues: {
       selectedCategory: '',
       numberOfPeople: '',
-      imageUrls:[],
+      imageUrls: [],
     }
   });
   console.log(formData);
-console.log(files)
-  const handleImageSubmit=async()=>{
-    if(files.length>0 &&files.length<7){
+  console.log(files)
+  const handleImageSubmit = async () => {
+    if (files.length > 0 && files.length < 7) {
       setUploading(true);
       setImageUploadError(false);
 
-      const promises=[];
-      for(let i=0;i<files.length;i++)
-      {
+      const promises = [];
+      for (let i = 0; i < files.length; i++) {
         promises.push(storeImages(files[i]));
       }
-      const urls = await Promise.all(promises).catch((err)=>{setImageUploadError('image upload failed ')});
+      const urls = await Promise.all(promises).catch((err) => { setImageUploadError('image upload failed ') });
       console.log('All files uploaded:', urls);
 
       setValue('imageUrls', [...watch('imageUrls'), ...urls]);
       setImageUploadError(false);
       setUploading(false);
 
-    } 
-    else{
+    }
+    else {
       setImageUploadError("you can only 6 images per events");
     }
+
+
   };
   const storeImages = async (file) => {
     return new Promise((resolve, reject) => {
@@ -69,7 +78,7 @@ console.log(files)
       const fileName = new Date().getTime() + '-' + file.name; // Corrected file name construction
       const storageRef = ref(storage, fileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
-  
+
       uploadTask.on(
         'state_changed',
         (snapshot) => {
@@ -95,10 +104,10 @@ console.log(files)
   const handleRemoveImage = (index) => {
     // Get the current image URLs from the form state
     const currentImageUrls = watch('imageUrls');
-  
+
     // Remove the image at the specified index
     const updatedImageUrls = currentImageUrls.filter((_, i) => i !== index);
-  
+
     // Update the form state with the new image URLs
     setValue('imageUrls', updatedImageUrls);
   };
@@ -107,7 +116,7 @@ console.log(files)
   const handleButtonClick = (category) => {
     setValue('selectedCategory', category);
   };
-
+  const imageUrls = watch('imageUrls');
   const processForm = (data) => {
     setFormData(prevData => ({ ...prevData, ...data }));
     console.log('Final Data:', data);
@@ -146,6 +155,7 @@ console.log(files)
   const handleShowMore = () => {
     setShowMore(!showMore);
   };
+
 
   return (
     <section className='absolute inset-0 flex flex-col justify-between p-40'>
@@ -264,19 +274,30 @@ console.log(files)
                       id="event-title"
                       type="text"
                       placeholder="Enter event title"
-                      {...register('eventTitle', { required: true })}
+                      {...register('title', { required: true })}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                     />
                     {errors.eventTitle && <p className="mt-1 text-sm text-red-600">Event title is required</p>}
                   </div>
 
+                  <label htmlFor="event-title" className="block text-sm font-medium text-gray-700">Event Description *</label>
+                  <div>
+                    <textarea
+                      type="text"
+                      placeholder="Description"
+                      className="border p-3 rounded-lg"
+                      id="description"
+
+                      {...register('description', { required: true })}
+                    />
+                  </div>
                   {/* Event Date */}
                   <div>
-                    <label htmlFor="event-date" className="block text-sm font-medium text-gray-700">When does your event start and end?</label>
+                    <label htmlFor="date" className="block text-sm font-medium text-gray-700">When does your event start and end?</label>
                     <input
                       id="event-date"
                       type="date"
-                      {...register('eventDate', { required: true })}
+                      {...register('date', { required: true })}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                     />
                     {errors.eventDate && <p className="mt-1 text-sm text-red-600">Date is required</p>}
@@ -289,13 +310,13 @@ console.log(files)
                       <input
                         id="start-time"
                         type="time"
-                        {...register('startTime', { required: true })}
+                        {...register('starttime', { required: true })}
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                       />
                       {errors.startTime && <p className="mt-1 text-sm text-red-600">Start time is required</p>}
                     </div>
                     <div className="flex-1">
-                      <label htmlFor="end-time" className="block text-sm font-medium text-gray-700">End time</label>
+                      <label htmlFor="endtime" className="block text-sm font-medium text-gray-700">End time</label>
                       <input
                         id="end-time"
                         type="time"
@@ -346,54 +367,54 @@ console.log(files)
                   </div>
 
 
-            
+
                   <p className='font-semibold'>
-            Images:
-            <span className='font-normal text-gray-600 ml-2'>
-              The first image will be the cover (max 6)
-            </span>
-          </p>
-          <div className='flex gap-4'>
-            <input
-              onChange={(e) => setFiles(e.target.files)}
-              className='p-3 border border-gray-300 rounded w-full'
-              type='file'
-              id='images'
-              accept='image/*'
-              multiple
-            />
-            <button
-              type='button'
-           disabled={uploading}
-            onClick={handleImageSubmit}
-              className='p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80'
-            >  
-              {uploading ? 'Uploading...' : 'Upload'}
-            </button>
-          </div>
-          <p className="text-red-700 text-sm">
-            {imageUploadError && imageUploadError}
-          </p>
-          {watch('imageUrls').length > 0 &&
-  watch('imageUrls').map((url, index) => (
-    <div
-      key={index}
-      className="flex justify-between p-3 border items-center"
-    >
-      <img
-        src={url}
-        alt={`Image ${index + 1}`}
-        className="w-20 h-20 object-contain rounded-lg"
-      />
-      <button
-        type="button"
-        onClick={() => handleRemoveImage(index)}
-        className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
-      >
-        Delete
-      </button>
-    </div>
-  ))} 
+                    Images:
+                    <span className='font-normal text-gray-600 ml-2'>
+                      The first image will be the cover (max 6)
+                    </span>
+                  </p>
+                  <div className='flex gap-4'>
+                    <input
+                      onChange={(e) => setFiles(e.target.files)}
+                      className='p-3 border border-gray-300 rounded w-full'
+                      type='file'
+                      id='images'
+                      accept='image/*'
+                      multiple
+                    />
+                    <button
+                      type='button'
+                      disabled={uploading}
+                      onClick={handleImageSubmit}
+                      className='p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80'
+                    >
+                      {uploading ? 'Uploading...' : 'Upload'}
+                    </button>
+                  </div>
+                  <p className="text-red-700 text-sm">
+                    {imageUploadError && imageUploadError}
+                  </p>
+                  {watch('imageUrls').length > 0 &&
+                    watch('imageUrls').map((url, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between p-3 border items-center"
+                      >
+                        <img
+                          src={url}
+                          alt={`Image ${index + 1}`}
+                          className="w-20 h-20 object-contain rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))}
                 </form>
               </section>
             </div>
@@ -412,6 +433,23 @@ console.log(files)
             <p className='mt-1 text-sm leading-6 text-gray-600'>
               Review and submit your information.
             </p>
+
+            <div>
+              <Swiper navigation>
+                {imageUrls.map((url) => (
+                  <SwiperSlide key={url}>
+                    <div
+                      className="h-[550px]"
+                      style={{
+                        background: `url(${url}) center no-repeat`,
+                        backgroundSize: "cover",
+                      }}
+                    ></div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+
+            </div>
             <div className='space-y-4'>
               <div>
                 <h3 className='text-lg font-semibold'>Event Information</h3>
@@ -429,8 +467,8 @@ console.log(files)
                 <p><strong>Capacity:</strong> {formData.capacity}</p>
               </div>
             </div>
-      </motion.div>
-       )}
+          </motion.div>
+        )}
 
         <div className='flex justify-between mt-12'>
           <button
