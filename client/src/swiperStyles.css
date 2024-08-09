@@ -1,0 +1,20 @@
+/* swiperStyles.css */
+.swiper-button-next,
+.swiper-button-prev {
+    color: #973333;
+    /* Customize color as needed */
+    position: absolute;
+    bottom: 10px;
+    /* Adjust as needed */
+    z-index: 10;
+}
+
+.swiper-button-next {
+    right: -10px;
+    /* Adjust as needed */
+}
+
+.swiper-button-prev {
+    left: -10px;
+    /* Adjust as needed */
+}

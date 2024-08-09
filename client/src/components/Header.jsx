@@ -33,13 +33,13 @@ function Header() {
           <Link to="/">
             <li className=" sm:inlines  hover:underline">Find my tickets</li>
           </Link>
-          <Link to="/about">
+          <Link to="/create">
             <li className=" sm:inlines text-slate-700 hover:underline">
               Create Event
             </li>
           </Link>
-          <Link to="sign in">Sign In</Link>
-          <Link to="/profile">Sign Up</Link>
+          <Link to="/sign-in">Sign In</Link>
+          <Link to="/sign-up">Sign Up</Link>
         </ul>
       </div>
     </header>

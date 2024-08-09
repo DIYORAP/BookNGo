@@ -55,7 +55,7 @@ const MapComponent = ({ location }) => {
   return (
     <>
       {error && <p>{error}</p>}
-      <div id="map" style={{ height: '400px', width: '80vh' }} />
+      <div className='center' id="map" style={{ height: '400px', width: '80vh' }} />
     </>
   );
 };
