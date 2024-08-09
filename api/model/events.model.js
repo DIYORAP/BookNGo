@@ -14,11 +14,11 @@ const eventSchema = new mongoose.Schema({
     required: true,
   },
   starttime: {
-    type: Date,
+    type: String,
     required: true,
   },
   endtime: {
-    type: Date,
+    type: String,
     required: true,
   },
   location: {
@@ -36,7 +36,7 @@ const eventSchema = new mongoose.Schema({
   ticketprice:{
     type:Number,
     required:true,
-  },
+  }, 
   capacity:{
     type:Number,
     required:true,
@@ -56,17 +56,7 @@ const eventSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  geomertry: {
-    type: {
-      type: String, // Don't do `{ location: { type: String } }`
-      enum: ["Point"], // 'location.type' must be 'Point'
-      required: true,
-    },
-    coordinates: {
-      type: [Number],
-      required: true,
-    },
-  },
+  
 });
 
 const Event = mongoose.model("Event", eventSchema);

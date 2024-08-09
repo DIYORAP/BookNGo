@@ -6,7 +6,7 @@ mapboxgl.accessToken = "pk.eyJ1IjoicGFydGhpazEwMDAiLCJhIjoiY2x3dGdiN3VoMDM4eDJsc
 const MapComponent = ({ location }) => {
   const [coordinates, setCoordinates] = useState(null);
   const [error, setError] = useState(null);
-  console.log(location);
+
   useEffect(() => {
     const fetchCoordinates = async () => {
       try {
@@ -43,7 +43,7 @@ const MapComponent = ({ location }) => {
         .setLngLat(coordinates)
         .setPopup(
           new mapboxgl.Popup({ offset: 25 })
-            .setHTML("<p> Exact location will be provided after booking</P>")
+            .setHTML("<p> Exact location will be provided after booking</p>")
             .setMaxWidth("300px")
         )
         .addTo(map);

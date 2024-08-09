@@ -15,9 +15,13 @@ export const createEvent = async (req, res, next) => {
       title: req.body.title,
       description: req.body.description,
       date: new Date(req.body.date),
+      starttime:req.body.starttime,
+      endtime:req.body.endtime,
       location: req.body.location,
-      imageUrls: req.body.imageUrls,
-      category: req.body.category,
+      imageUrls: req.body.imageUrls, 
+      ticketprice:req.body.ticketprice,
+      capacity:req.body.capacity,
+      category:req.body.selectedCategory, 
       organizer: userId,
     });
 

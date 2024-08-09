@@ -15,7 +15,7 @@ const steps = [
   { id: 'Step 3', name: 'Complete' }
 ];
 
-const categories = [
+const category = [
   'Comedy', 'Food & Drink', 'Music', 'Community & Culture', 'Hobbies & Special Interest', 'Performing & Visual Arts',
   'Parties', 'Fashion & Beauty', 'Business & Professional', 'Non-Profit', 'Religion & Spirituality', 'Family & Education',
   'Health & Wellness', 'Events Company, Agency, or Promoter', 'Sports & Fitness', 'Other'
@@ -32,6 +32,8 @@ export default function Form() {
   const [formData, setFormData] = useState({});
   const [imageUploadError, setImageUploadError] = useState(false);
   const [files, setFiles] = useState([]);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -43,9 +45,16 @@ export default function Form() {
     formState: { errors }
   } = useForm({
     defaultValues: {
-      selectedCategory: '',
-      numberOfPeople: '',
+      title: '',
+      description: '',
+      date: '',
+      starttime: '',
+      endtime: '',
+      location: '',
+      ticketprice: '',
+      capacity: '',
       imageUrls: [],
+      selectedCategory: '',
     }
   });
   console.log(formData);
@@ -112,23 +121,56 @@ export default function Form() {
     // Update the form state with the new image URLs
     setValue('imageUrls', updatedImageUrls);
   };
-  const selectedCategory = watch('selectedCategory');
-
+  const selectedCategory = watch('selectedCategory')
   const handleButtonClick = (category) => {
     setValue('selectedCategory', category);
   };
   const imageUrls = watch('imageUrls');
-  const processForm = (data) => {
-    setFormData(prevData => ({ ...prevData, ...data }));
-    console.log('Final Data:', data);
+
+
+
+  const currentUser = { _id: 'user-id' };
+
+  const processForm = async (data) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch("/api/event/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...data,
+          userRef: currentUser._id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+
+      console.log('Success:', result);
+      // Handle successful submission here
+
+    } catch (err) {
+      setError(err.message);
+      console.error('Submission error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const next = async () => {
     const fields = steps[currentStep].fields;
 
     if (currentStep === 0) {
       // Validate current step fields
-      const isValid = await trigger(['selectedCategory', 'numberOfPeople']);
+      const isValid = await trigger(['selectedCategory']);
       if (!isValid) return;
     } else if (currentStep === 1) {
       // Validate step 1 fields
@@ -211,7 +253,7 @@ export default function Form() {
             </p>
             <div className="p-6">
               <div className="flex flex-wrap gap-4">
-                {categories.slice(0, showMore ? undefined : 7).map((category) => (
+                {category.slice(0, showMore ? undefined : 7).map((category) => (
                   <button
                     key={category}
                     type="button"
@@ -221,6 +263,7 @@ export default function Form() {
                     {category}
                   </button>
                 ))}
+
               </div>
               <button
                 type="button"
@@ -238,8 +281,8 @@ export default function Form() {
                 id="number-of-people"
                 title="Number of people"
                 aria-labelledby="label-number-of-people"
-                required
-                {...register('numberOfPeople', { required: true })}
+
+                // {...register('numberOfPeople', { required: true })}
                 className="block w-1/3 mt-1 border border-gray-300 rounded-md shadow-sm bg-white text-gray-700 focus:ring-sky-700 focus:border-sky-700 sm:text-sm p-2"
               >
                 <option value="" disabled hidden>Number of people</option>
@@ -278,7 +321,7 @@ export default function Form() {
                       {...register('title', { required: true })}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                     />
-                    {errors.eventTitle && <p className="mt-1 text-sm text-red-600">Event title is required</p>}
+                    {error.title && <p className="mt-1 text-sm text-red-600">Event title is required</p>}
                   </div>
 
                   <label htmlFor="event-title" className="block text-sm font-medium text-gray-700">Event Description *</label>
@@ -301,7 +344,7 @@ export default function Form() {
                       {...register('date', { required: true })}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                     />
-                    {errors.eventDate && <p className="mt-1 text-sm text-red-600">Date is required</p>}
+                    {error.date && <p className="mt-1 text-sm text-red-600">Date is required</p>}
                   </div>
 
                   {/* Event Start and End Time */}
@@ -314,17 +357,17 @@ export default function Form() {
                         {...register('starttime', { required: true })}
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                       />
-                      {errors.startTime && <p className="mt-1 text-sm text-red-600">Start time is required</p>}
+                      {error.starttime && <p className="mt-1 text-sm text-red-600">Start time is required</p>}
                     </div>
                     <div className="flex-1">
                       <label htmlFor="endtime" className="block text-sm font-medium text-gray-700">End time</label>
                       <input
                         id="end-time"
                         type="time"
-                        {...register('endTime', { required: true })}
+                        {...register('endtime', { required: true })}
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                       />
-                      {errors.endTime && <p className="mt-1 text-sm text-red-600">End time is required</p>}
+                      {error.endtime && <p className="mt-1 text-sm text-red-600">End time is required</p>}
                     </div>
                   </div>
 
@@ -338,7 +381,7 @@ export default function Form() {
                       {...register('location', { required: true })}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                     />
-                    {errors.location && <p className="mt-1 text-sm text-red-600">Location is required</p>}
+                    {error.location && <p className="mt-1 text-sm text-red-600">Location is required</p>}
                   </div>
 
                   {/* Ticket Price */}
@@ -348,10 +391,10 @@ export default function Form() {
                       id="ticket-price"
                       type="number"
                       placeholder="0.00"
-                      {...register('ticketPrice', { required: true })}
+                      {...register('ticketprice', { required: true })}
                       className="mt-1 block border border-gray-300 rounded-md shadow-sm p-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                     />
-                    {errors.ticketPrice && <p className="mt-1 text-sm text-red-600">Ticket price is required</p>}
+                    {error.ticketprice && <p className="mt-1 text-sm text-red-600">Ticket price is required</p>}
                   </div>
 
                   {/* Capacity */}
@@ -364,7 +407,7 @@ export default function Form() {
                       {...register('capacity', { required: true })}
                       className="mt-1 block border border-gray-300 rounded-md shadow-sm p-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                     />
-                    {errors.capacity && <p className="mt-1 text-sm text-red-600">Capacity is required</p>}
+                    {error.capacity && <p className="mt-1 text-sm text-red-600">Capacity is required</p>}
                   </div>
 
 
@@ -454,18 +497,18 @@ export default function Form() {
             <div className='space-y-4'>
               <div>
                 <h3 className='text-lg font-semibold'>Event Information</h3>
-                <p><strong>Category:</strong> {selectedCategory}</p>
+                <p><strong>Category:</strong> {category}</p>
                 <p><strong>Number of people:</strong> {formData.numberOfPeople}</p>
               </div>
               <div>
                 <h3 className='text-lg font-semibold'>Event Details</h3>
-                <p><strong>Title:</strong> {formData.eventTitle}</p>
-                <p><strong>Date:</strong> {formData.eventDate}</p>
+                <p><strong>Title:</strong> {formData.title}</p>
+                <p><strong>Date:</strong> {formData.date}</p>
                 <p><strong>Start Time:</strong> {formData.startTime}</p>
                 <p><strong>End Time:</strong> {formData.endTime}</p>
 
                 <p><strong>Location:</strong> {formData.location}</p>
-                <div class="col-span-8 offset-3 mb-3">
+                <div className="col-span-8 offset-3 mb-3">
                   <h3>Where you'll be</h3>
                   <MapComponent location={formData.location} />
                 </div>
