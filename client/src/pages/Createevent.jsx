@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { app } from '../firebase.js'
@@ -39,7 +39,6 @@ export default function Form() {
     register,
     handleSubmit,
     watch,
-    reset,
     trigger,
     setValue,
     formState: { errors }
