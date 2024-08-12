@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+   // this are not used that time,
 const ticketSchema = new mongoose.Schema({
   event: {
     type: mongoose.Schema.Types.ObjectId,

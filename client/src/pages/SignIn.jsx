@@ -6,7 +6,7 @@ import { signInStart, signInSuccess, signInFailure } from '../redux/userSlice'; 
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
- // const { loading,error} = useSelector(state => state.user);
+  // const { loading,error} = useSelector(state => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -31,12 +31,12 @@ export default function SignIn() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      
+
       if (data.success === false) {
         dispatch(signInFailure(data.message));
         return;
       }
-      
+
       dispatch(signInSuccess(data));
       navigate('/');
     } catch (error) {
@@ -66,7 +66,7 @@ export default function SignIn() {
         />
         <button
           type='submit'
-        //  disabled={loading}
+          //  disabled={loading}
           className='bg-blue-700 text-white p-2 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
         > Sign-in
           {/* {loading ? 'Loading...' : 'Sign In'} */}

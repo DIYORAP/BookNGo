@@ -43,3 +43,22 @@ export const createEvent = async (req, res, next) => {
     return next(error);
   }
 };
+
+
+  export const getevent=async(req,res,next)=>{
+  const event=await Event.findById(req.params.id);
+  if(!event)
+    res.send("this event not fouended");
+  res.status(200).json(event);
+  console.log(event);
+}
+
+
+export const getevents=async(req,res,next)=>{
+  const events=await Event.find({});
+  if(!events)
+  {
+    res.send(" does not found any events in table");
+  }
+  res.status(200).json(events);
+}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
-
 mapboxgl.accessToken = "pk.eyJ1IjoicGFydGhpazEwMDAiLCJhIjoiY2x3dGdiN3VoMDM4eDJsczdnMzF6ZDEwMiJ9._0J8bPx46q5D5zgnIpd4DQ";
 
 const MapComponent = ({ location }) => {
@@ -34,29 +33,20 @@ const MapComponent = ({ location }) => {
     if (coordinates) {
       const map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v11',
+        style: 'mapbox://styles/mapbox/streets-v12',
         center: coordinates,
-        zoom: 9,
+        zoom: 12
       });
-
-      new mapboxgl.Marker({ color: "red" })
-        .setLngLat(coordinates)
-        .setPopup(
-          new mapboxgl.Popup({ offset: 25 })
-            .setHTML("<p> Exact location will be provided after booking</p>")
-            .setMaxWidth("300px")
-        )
-        .addTo(map);
-
-      return () => map.remove();
     }
   }, [coordinates]);
 
   return (
+
     <>
       {error && <p>{error}</p>}
-      <div className='center' id="map" style={{ height: '400px', width: '80vh' }} />
+      <div id="map" style={{ height: '400px', width: '100vh' }} />
     </>
+
   );
 };
 

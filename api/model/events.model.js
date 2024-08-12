@@ -41,6 +41,10 @@ const eventSchema = new mongoose.Schema({
     type:Number,
     required:true,
   },
+  sold: {
+    type: Number,
+    default: 0, // Ensure this field is initialized
+  },
   organizer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

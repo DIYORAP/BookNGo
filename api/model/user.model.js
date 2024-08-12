@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
     eventsAttended: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Event",
+        ref: "Order",
       },
     ],
     avatar: {

@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import authRouter from "./routes/user.route.js";
 import eventRouter from "./routes/event.route.js";
 import userRoute from "./routes/auth.route.js"
+import orderRoute from "./routes/order.route.js"
 import cors from 'cors'
 dotenv.config();
 
@@ -17,6 +18,8 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/event", eventRouter);
 app.use("/api/user",userRoute);
+app.use("/api/ticket",orderRoute);
+
 mongoose
   .connect(process.env.DB_URL)
   .then(() => {

@@ -7,7 +7,7 @@ import ButtonSelection from "./pages/Createevent";
 import Example from "./pages/Home";
 import Profile from "./pages/Profile";
 import PrivateRoute from "./components/PrivateRoute";
-
+import EventVisitor from "./pages/EventVisitor";
 
 function App() {
 
@@ -16,6 +16,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Example />} />
+        <Route path="/in" element={<EventVisitor />} />
         <Route path='/sign-up' element={<SignUp />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route element={<PrivateRoute />}>
@@ -23,6 +24,7 @@ function App() {
           <Route path="/create" element={<ButtonSelection />} />
         </Route>
       </Routes>
+
     </BrowserRouter>
 
   );
