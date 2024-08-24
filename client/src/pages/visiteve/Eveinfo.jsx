@@ -1,5 +1,5 @@
 import React from 'react'
-import { MdLocationOn } from "react-icons/md";
+import { MdAddToQueue, MdLocationOn } from "react-icons/md";
 import MapComponent from '../../components/MapComponent';
 import { MdDateRange } from "react-icons/md";
 
